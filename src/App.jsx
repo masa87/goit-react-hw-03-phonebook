@@ -5,7 +5,7 @@ import { nanoid } from "nanoid";
 import ContactForm from "./components/ContactForm/ContactForm.jsx";
 import { ContactList } from "./components/ContactList/ContactList";
 import { Filter } from "./components/Filter/Filter";
-import { addContact, getItems } from "./utils/localStorage.js";
+import { saveToLocalStore, loadLocalStore } from "./utils/localStorage";
 
 export default class App extends Component {
   // static propTypes = {
@@ -14,25 +14,7 @@ export default class App extends Component {
 
   state = {
     contacts: [],
-    // contacts: [
-    //   { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
-    //   { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
-    //   { id: "id-3", name: "Eden Clements", number: "645-17-79" },
-    //   { id: "id-4", name: "Annie Copeland", number: "227-91-26" },
-    // ],
     filter: "",
-  };
-
-  componentDidMount = () => {
-    let contactArr =
-      getItems("contacts") === undefined
-        ? this.setState({ contacts: getItems("contacts") })
-        : [];
-    // this.setState({ contacts: contactArr });
-  };
-
-  componentDidUpdate = () => {
-    addContact(this.state.contacts);
   };
 
   setContacts = ({ name, number }) => {
@@ -53,20 +35,24 @@ export default class App extends Component {
     this.setState((p) => ({
       contacts: p.contacts.filter((i) => i.id !== id),
     }));
+  };
+  componentDidUpdate = () => {
+    saveToLocalStore("CONTACTS", this.state.contacts);
+  };
 
-    let newContacts = [...this.state.contacts];
-    const stringifyArr = JSON.stringify(newContacts);
-    let newData =
-      newContacts.length < 1
-        ? localStorage.setItem("contacts", stringifyArr)
-        : localStorage.removeItem("contacts");
-
-    // addContact("newData");
+  componentDidMount = () => {
+    this.loadContacts();
   };
 
   setFilter = (e) => {
     const value = e.target.value.toLowerCase();
     this.setState({ filter: value });
+  };
+
+  loadContacts = () => {
+    const newContacts = loadLocalStore("CONTACTS") || [];
+    this.setState(() => ({ contacts: [...newContacts] }));
+    return this.state.contacts;
   };
 
   getContacts = () => {

@@ -1,10 +1,12 @@
-const addContact = (newContact) => {
-  const oldContacts = JSON.parse(localStorage.getItem("contacts")) || [];
-  const newContacts = [...oldContacts, newContact];
-  const stringifyNewContacts = JSON.stringify(newContacts);
-  localStorage.setItem("contacts", stringifyNewContacts);
+const saveToLocalStore = (key, value) => {
+  try {
+    const serializedState = JSON.stringify(value);
+    localStorage.setItem(key, serializedState);
+  } catch (error) {
+    console.error("Set state error: ", error.message);
+  }
 };
-const getItems = (key) => {
+const loadLocalStore = (key) => {
   try {
     const serializedState = localStorage.getItem(key);
     return serializedState === null ? undefined : JSON.parse(serializedState);
@@ -13,4 +15,4 @@ const getItems = (key) => {
   }
 };
 
-export { addContact, getItems };
+export { saveToLocalStore, loadLocalStore };
